@@ -74,22 +74,29 @@ async function delay(ms) {
 
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
-	// TODO - Get player_id and track_id from the store
-	let player_id = store.player_id
-	let track_id = store.track_id
-	
-	// const race = TODO - invoke the API call to create the race, then save the result
-	let myRace = await createRace(player_id, track_id)
+	try{
+		// TODO - Get player_id and track_id from the store
+		let player_id = store.player_id
+		let track_id = store.track_id
 
-	// TODO - update the store with the race id
-		// For the API to work properly, the race id should be race id - 1
-	store = {
-		...store,
-		race_id : myRace.ID - 1
+		if (!player_id || !track_id) {
+			return alert("You must select a track and a racer!")
+		}
+		
+		// const race = TODO - invoke the API call to create the race, then save the result
+		let myRace = await createRace(player_id, track_id)
+
+		// TODO - update the store with the race id
+			// For the API to work properly, the race id should be race id - 1
+		store = {
+			...store,
+			race_id : myRace.ID - 1
+		}
+		// render starting UI
+		renderAt('#race', renderRaceStartView(myRace))
+	} catch(error) {
+		console.log(error + " In HandleCreateRace")
 	}
-	// render starting UI
-	renderAt('#race', renderRaceStartView(myRace))
-
 
 	
 	// The race has been created, now start the countdown
@@ -301,7 +308,7 @@ function resultsView(positions) {
 }
 
 function raceProgress(positions) {
-	let userPlayer = positions.find(e => e.id === store.player_id)
+	const userPlayer = positions.find(e => e.id === store.player_id)
 	userPlayer.driver_name += " (you)"
 
 	positions = positions.sort((a, b) => (a.segment > b.segment) ? -1 : 1)
@@ -315,7 +322,7 @@ function raceProgress(positions) {
 				</td>
 			</tr>
 		`
-	})
+	}).join(" ")
 
 	return `
 		<main>
